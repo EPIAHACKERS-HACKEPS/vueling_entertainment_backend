@@ -49,7 +49,7 @@ def execute_response(pompt, engine = ENGINE_MODEL, max_tokens = 1024, temperatur
         engine = engine,
         prompt = pompt,
         max_tokens = max_tokens,
-        temperature = temperature
+        temperature = tem    perature
     )['choices'][0]['text'].strip().replace("\n", "").replace("\t", "")
 
 def converJSON(json_text):
@@ -148,11 +148,31 @@ def setup():
     return 'Status: Working!'
 
 # Ruta para insertar preguntas en la tabla 'preguntas' de la base de datos
-@app.route('/questions', methods=['POST'])
-def insertar_preguntas():
-    pregunta = request.json['pregunta']
-    opciones = request.json['opciones']
-    db.insertKahootQuest(pregunta, opciones)
+# @app.route('/questions', methods=['POST'])
+# def insertar_preguntas():
+#     pregunta = rr.form.get('pregunta')
+#     opciones = rr.form.get('opciones')
+#     db.insertKahootQuest(pregunta, opciones)
+#     return json.dumps({"status": "OK"})
+
+
+# Ruta para insertar preguntas en la tabla 'preguntas' de la base de datos
+@app.route('/leadborard', methods=['POST'])
+def insert_leaderboard():
+    seat = rr.form.get('seat')
+    pts = rr.form.get('pts')
+    nickname = rr.form.get('nickname')
+    db.insertLeaderboardData(seat,pts,nickname)
+
+    return json.dumps({"status": "OK"})
+
+
+# Ruta para insertar preguntas en la tabla 'preguntas' de la base de datos
+@app.route('/leadborard', methods=['GET'])
+def get_leaderborard():
+
+    pregunta = request.data['pregunta']
+    opciones = request.data['opciones']
     return json.dumps({"status": "OK"})
 
 # Ruta para obtener preguntas aleatorias de la tabla 'preguntas' de la base de datos

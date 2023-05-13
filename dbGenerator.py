@@ -80,10 +80,10 @@ def insertUserData():
     conn.commit()
     conn.close()
 
-def insertLeaderboardData():
+def insertLeaderboardData(seat,pts,nickname):
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
-    sql = "INSERT INTO leaderboard_table (nickname, asiento, puntos) VALUES ('player1', 10, 100);"
+    sql = "INSERT INTO leaderboard_table (nickname, asiento, puntos) VALUES ('?', '?', ?);", (nickname, seat, pts)
     cursor.execute(sql)
     conn.commit()
     conn.close()
@@ -106,6 +106,14 @@ def insertPasajerosData():
     conn.close()
 
 
+def getLeaderboard():
+    conn = sqlite3.connect(database)
+    cursor = conn.cursor()
+    sql = "SELECT * FROM leaderboard_table ORDER BY puntos DESC;"
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    conn.close()
+    return result
 
 
 def updateAirportsData(code, name):
