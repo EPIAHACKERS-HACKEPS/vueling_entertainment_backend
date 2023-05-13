@@ -148,7 +148,7 @@ def setup():
     return 'Status: Working!'
 
 # Ruta para insertar preguntas en la tabla 'preguntas' de la base de datos
-@app.route('/preguntas', methods=['POST'])
+@app.route('/questions', methods=['POST'])
 def insertar_preguntas():
     pregunta = request.json['pregunta']
     opciones = request.json['opciones']
@@ -156,13 +156,13 @@ def insertar_preguntas():
     return json.dumps({"status": "OK"})
 
 # Ruta para obtener preguntas aleatorias de la tabla 'preguntas' de la base de datos
-@app.route('/preguntas', methods=['GET'])
+@app.route('/questions', methods=['GET'])
 def obtener_preguntas():
     return json.dumps(db.get_random_questions())
 
 
 if __name__ == '__main__':
-    ip = '192.168.137.1'
+    ip = '127.0.0.1'
     port = 80
 
     ruta_archivo = os.getcwd()+db.database

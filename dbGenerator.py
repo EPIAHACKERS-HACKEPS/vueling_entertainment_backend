@@ -164,12 +164,13 @@ def get_random_questions(num_preguntas=10):
     for row in cursor.fetchall():
         pregunta = {
             'id': row[0],
-            'pregunta': row[1],
-            'opcion_a': row[2],
-            'opcion_b': row[3],
-            'opcion_c': row[4],
-            'opcion_d': row[5],
-            'respuesta': row[6]
+            'question': row[1],
+            'optionA': row[2],
+            'optionB': row[3],
+            'optionC': row[4],
+            'optionD': row[5],
+            'answer': '',
+            'correctAnswer': row[6]
         }
         preguntas.append(pregunta)
     conn.close()
