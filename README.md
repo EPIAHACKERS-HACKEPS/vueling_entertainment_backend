@@ -1,5 +1,5 @@
 <!-- # Vueling_Entretainment_BACKEND -->
-# **Vueling** : _Kahoot! Airlines **[BACKEND]**_
+# **Vueling** : Entretainment **[BACKEND]**_
 Este es un proyecto de simulación de una aerolínea ficticia llamada Kahoot! Airlines. El objetivo es proporcionar un programa de línea de comandos (CLI) que permita a los usuarios interactuar con diferentes características de la aerolínea, como reservar vuelos, ver la información del aeropuerto, jugar juegos de preguntas de Kahoot, ver el estado del tiempo, entre otras cosas.
 
 ## **Instalación**
