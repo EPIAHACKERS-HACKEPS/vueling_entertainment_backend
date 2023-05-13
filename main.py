@@ -92,10 +92,10 @@ def setupInfo(city="Barcelona"):
             data = converJSON(response)
             if 'quiz' in data:
                 data = data['quiz']
-                print(data)
+                #print(data)
                 for _ in data:
                     #print([_['question'],_['a'],_['b'],_['c'],_['d'],_['respuesta']])
-                    res.append([_['question'],_['a'],_['b'],_['c'],_['d'],_['respuesta']])
+                    res.append([_['question'],_['a'],_['b'],_['c'],_['d'],_['answer']])
                     ok = False;
             else:
                 ok = True;
@@ -174,17 +174,31 @@ input[type=text]:hover,input[type=datetime]:hover{
 }
 
 </style>
+
     <center><form action="/setup" method="post" style="padding:20pt;width:30vw;border-radius:15pt;background:var(--clr-charcoal);">
         <label for="city_origen">Origin city:</label>
-        <input type="text" name="city_origen" placeholder="Origin city" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
+        <input type="text" name="city_origen" placeholder="Origin city" value="New York" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
         <label for="city_destino">Destination city:</label>
-        <input type="text" name="city_destino" placeholder="Destination city" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
+        <input type="text" name="city_destino" placeholder="Destination city" value="Los Angeles" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
         <label for="fecha_origen">Departure date and time:</label>
-        <input type="datetime-local" name="fecha_origen" placeholder="Departure date and time" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
-        <label for="fecha_destino">Arrival date and time:</label>
-        <input type="datetime-local" name="fecha_destino" placeholder="Arrival date and time" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
+        <input type="datetime-local" name="fecha_salida" placeholder="Departure date and time" value="2023-06-01T08:00" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
+        <label for="fecha_llegada">Arrival date and time:</label>
+        <input type="datetime-local" name="fecha_llegada" placeholder="Arrival date and time" value="2023-06-01T12:00" min="2023-06-01T08:00" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
         <input type="submit"/>
     </form></center>
+<script>
+  const salidaInput = document.querySelector('input[name="fecha_salida"]');
+  const llegadaInput = document.querySelector('input[name="fecha_llegada"]');
+
+  salidaInput.addEventListener('input', () => {
+    const salidaValue = new Date(salidaInput.value);
+    const llegadaMinValue = new Date(salidaValue.getTime() + 60 * 60 * 1000); // Agregar 1 hora
+
+    const llegadaMin = llegadaMinValue.toISOString().slice(0, 16);
+    llegadaInput.min = llegadaMin;
+  });
+</script>
+
     """
     return 'Welcome to my application API!<br>'+html
 
@@ -195,7 +209,7 @@ def setup():
     global destination_city
     global origin_date
     global destination_date
-    print(rr.headers)
+    #print(rr.headers)
     #api_key = rr.headers.get('apikey')
     #if api_key == 'kajsdfhlkaeshfdjkhsdjkahskl':
     origin_city = rr.form.get('city_origen')
@@ -214,15 +228,18 @@ def setup():
 #     db.insertKahootQuest(pregunta, opciones)
 #     return json.dumps({"status": "OK"})
 
+@app.route('/info', methods=['GET'])
+def generalInfo():
+    return json.dumps([origin_city,destination_city,origin_date,destination_date])
 
 # Ruta para insertar preguntas en la tabla 'preguntas' de la base de datos
 @app.route('/leadborard', methods=['POST'])
 def insert_leaderboard():
     seat = rr.form.get('seat')
-    pts = rr.form.get('pts')
-    nickname = rr.form.get('nickname')
+    points = rr.form.get('points')
+    username = rr.form.get('username')
     try:
-        db.insertLeaderboardData(seat,pts,nickname)
+        db.insertLeaderboardData(seat,points,username)
         return json.dumps({"status": "200"})
     except:
         return json.dumps({"status": "400"})
@@ -244,9 +261,9 @@ if __name__ == '__main__':
     port = 80
 
     ruta_archivo = os.getcwd()+db.database
-    print(ruta_archivo)
+    #print(ruta_archivo)
     if not os.path.exists(ruta_archivo):
         db.GenerateDataBases()
-        print("DB GENERADA")
+        print("DATABASE GENERATED as "+db.database)
     app.run(host=ip, port=port,debug=False)
 
