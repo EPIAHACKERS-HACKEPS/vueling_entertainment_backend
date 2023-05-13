@@ -20,7 +20,8 @@ def insertKahootQuest(pregunta, opciones):
     """Inserta una pregunta y sus opciones en la tabla 'preguntas' de la base de datos"""
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
-    cursor.execute('''INSERT INTO preguntas (question, opcion_a, opcion_b, opcion_c, opcion_d, respuesta) VALUES (?, ?, ?, ?, ?, ?)''', (pregunta, opciones['A'], opciones['B'], opciones['C'], opciones['D'], opciones['respuesta']))
+    print(opciones)
+    cursor.execute('''INSERT INTO preguntas (question, opcion_a, opcion_b, opcion_c, opcion_d, respuesta) VALUES (?, ?, ?, ?, ?, ?)''', (pregunta, opciones[0], opciones[1], opciones[2], opciones[3], opciones[4]))
     conn.commit()
     conn.close()
 
@@ -32,6 +33,24 @@ def insertAirportsData():
     conn.commit()
     conn.close()
 
+def get_random_questions(num_preguntas=10):
+    conn = sqlite3.connect(database)
+    cursor = conn.cursor()
+    cursor.execute(f'SELECT * FROM preguntas ORDER BY RANDOM() LIMIT {num_preguntas};')
+    preguntas = []
+    for row in cursor.fetchall():
+        pregunta = {
+            'id': row[0],
+            'pregunta': row[1],
+            'opcion_a': row[2],
+            'opcion_b': row[3],
+            'opcion_c': row[4],
+            'opcion_d': row[5],
+            'respuesta': row[6]
+        }
+        preguntas.append(pregunta)
+    conn.close()
+    return preguntas
 
 
 
