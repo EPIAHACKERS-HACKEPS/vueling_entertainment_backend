@@ -7,7 +7,7 @@ import openai
 import shutil
 import requests
 import threading
-from flask import Flask
+from flask import Flask, request as rr
 import sqlite3
 #files
 import dbGenerator as db
@@ -24,6 +24,15 @@ origin_city = ""
 destination_city = ""
 origin_date = ""
 destination_date = ""
+
+
+# Define el decorador
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    return response
+
 
 def OpenAiReConfig(API_TYPE_NEW,API_KEY_NEW,API_BASE_NEW,API_VERSION_NEW,ENGINE_MODEL_NEW):
     global openai
@@ -56,8 +65,8 @@ def converJSON(json_text):
     return {}
 
 def create_kahoot_prompt(destinacion_vuelo,tematica, n = 10):
-    prompt = f"Devuelveme un JSON vàlido que contenga una lista llamada 'quiz' de {n} objetos con el siguiente formato:\n- 'question': Una pregunta sobre la ciudad de {destinacion_vuelo} y de tematica {tematica}\n- 'a': Una respuesta valida o invalida sobre la pregunta\n- 'b': Otra respuesta valida o invalida sobre la pregunta\n- 'c': Otra respuesta valida o invalida sobre la pregunta\n- 'd': Otra respuesta valida o invalida sobre la pregunta\n- 'respuesta': La letra (a, b, c, d) que contenga la respuesa correcta a 'question'. Solo una puede ser la correcta, las demás serán falsas"
-    # prompt = f'dame un conjunto de 10 preguntas de opción múltiple sobre la ciudad de {destinacion_vuelo}. Cada pregunta debe tener una sola respuesta correcta y estar relacionada con {tematica}. Usa la información disponible sobre {destinacion_vuelo} para crear preguntas interesantes y desafiantes para los usuarios, que cada pregunta  se represente de la siguiente estructura en formato json: {{"¿En qué año fue fundada Barcelona?": {{"A": "218 a. C.", "B": "78 d. C.", "C": "100 d. C.", "D": "410 d. C.", "respuesta": "A"}}}} en una misma linea'
+    prompt = f"Devuelveme un JSON vàlido que contenga una lista llamada 'quiz' de {n} objetos con el siguiente formato:\n- 'question': Una pregunta sobre la city de {destinacion_vuelo} y de tematica {tematica}\n- 'a': Una respuesta valida o invalida sobre la pregunta\n- 'b': Otra respuesta valida o invalida sobre la pregunta\n- 'c': Otra respuesta valida o invalida sobre la pregunta\n- 'd': Otra respuesta valida o invalida sobre la pregunta\n- 'respuesta': La letra (a, b, c, d) que contenga la respuesa correcta a 'question'. Solo una puede ser la correcta, las demás serán falsas"
+    # prompt = f'dame un conjunto de 10 preguntas de opción múltiple sobre la city de {destinacion_vuelo}. Cada pregunta debe tener una sola respuesta correcta y estar relacionada con {tematica}. Usa la información disponible sobre {destinacion_vuelo} para crear preguntas interesantes y desafiantes para los usuarios, que cada pregunta  se represente de la siguiente estructura en formato json: {{"¿En qué año fue fundada Barcelona?": {{"A": "218 a. C.", "B": "78 d. C.", "C": "100 d. C.", "D": "410 d. C.", "respuesta": "A"}}}} en una misma linea'
     return prompt.replace("\n", "").replace("\t", "").replace("\\", "")
 
 def request():
@@ -66,13 +75,13 @@ def request():
 def cargarJson(jsonString):
     return json.loads(jsonString)
 
-def setupInfo(ciudad="Barcelona"):
+def setupInfo(city="Barcelona"):
     res = []
-    categorias = ['Cultura', 'Lugares Turísticos', 'Historia', 'Gastronomía', 'Arquitectura']
-    print("Refrescando Datos de "+ciudad)
-    for i in range(len(categorias)):
-        print("Preguntas Categoria " + categorias[i])
-        prompt = create_kahoot_prompt(ciudad, categorias[i],2)
+    categories = ['Cultura', 'Lugares Turísticos', 'Historia', 'Gastronomía', 'Arquitectura']
+    print("Extrayendo Datos de "+city)
+    for i in range(len(categories)):
+        print("Generando preguntas de " + categories[i]+" de "+city)
+        prompt = create_kahoot_prompt(city, categories[i],2)
         ok = True
         while(ok):
             response = execute_response(prompt)
@@ -91,16 +100,34 @@ def setupInfo(ciudad="Barcelona"):
         pregunta_texto = dato[0]
         opciones = [dato[1],dato[2],dato[3],dato[4],dato[5]]
         db.insertKahootQuest(pregunta_texto, opciones)
-    print("Datos de "+ciudad+" Refrescados")
+    print("Datos de "+city+" Importados")
 
 
 
 app = Flask(__name__)
 
+# Aplica el decorador a todas las respuestas de la aplicación
+@app.after_request
+def after_request(response):
+    return add_cors_headers(response)
+
 # Establece la ruta de la raíz de la API
 @app.route('/')
 def index():
-    return 'Bienvenido a la API de mi aplicación!'
+    html="""
+    <form action="/setup" method="post">
+        <label for="city_origen">city_origen</label>
+        <input type="text" name="city_origen" placeholder="city Origen"/><br>
+        <label for="city_destino">city_destino</label>
+        <input type="text" name="city_destino" placeholder="city Destino"/><br>
+        <label for="fecha_origen">fecha_origen</label>
+        <input type="datetime-local" name="fecha_origen" placeholder="Fecha Origen"/><br>
+        <label for="fecha_destino">fecha_destino</label>
+        <input type="datetime-local" name="fecha_destino" placeholder="Fecha Destino"/><br>
+        <input type="submit"/>
+    </form>
+    """
+    return 'Bienvenido a la API de mi aplicación!<br>'+html
 
 
 @app.route('/setup', methods=['POST'])
@@ -109,12 +136,14 @@ def setup():
     global destination_city
     global origin_date
     global destination_date
-
-    origin_city = request.form.get('ciudad_origen')
-    destination_city  = request.form.get('ciudad_destino')
-    origin_date = request.form.get('fecha_salida')
-    destination_date = request.form.get('fecha_llegada')
-
+    print(rr.headers)
+    #api_key = rr.headers.get('apikey')
+    #if api_key == 'kajsdfhlkaeshfdjkhsdjkahskl':
+    origin_city = rr.form.get('city_origen')
+    destination_city  = rr.form.get('city_destino')
+    origin_date = rr.form.get('fecha_salida')
+    destination_date = rr.form.get('fecha_llegada')
+    
     setupInfo(destination_city)
     return 'Status: Working!'
 
@@ -131,9 +160,15 @@ def insertar_preguntas():
 def obtener_preguntas():
     return json.dumps(db.get_random_questions())
 
+
 if __name__ == '__main__':
-    db.GenerateDataBases()
-    setupInfo("Barcelona")
-    time.sleep(10)
-    app.run(host='192.168.137.1', port=80,debug=False)
+    ip = '192.168.137.1'
+    port = 80
+
+    ruta_archivo = os.getcwd()+db.database
+    print(ruta_archivo)
+    if not os.path.exists(ruta_archivo):
+        db.GenerateDataBases()
+        print("DB GENERADA")
+    app.run(host=ip, port=port,debug=False)
 
