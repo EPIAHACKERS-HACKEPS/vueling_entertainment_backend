@@ -108,7 +108,7 @@ def setupInfo(city="Barcelona"):
     print("Data from "+city+" imported")
 
 
-app = Flask(__name__)
+app = Flask(__name__,static_folder='public')
 
 # Aplica el decorador a todas las respuestas de la aplicación
 @app.after_request
@@ -230,7 +230,13 @@ def setup():
 
 @app.route('/info', methods=['GET'])
 def generalInfo():
-    return json.dumps([origin_city,destination_city,origin_date,destination_date])
+    weather = db.get_current_weather(destination_city)
+    data = [origin_city,destination_city,origin_date,destination_date,weather['temperature_c'],weather['condition'],weather['icon']]
+    keys = ["origin_city", "destination_city", "origin_date", "destination_date","temperature","condition","icon"]
+    result = {}
+    for i in range(len(data)):
+        result[keys[i]] = data[i]
+    return json.dumps(result)
 
 # Ruta para insertar preguntas en la tabla 'preguntas' de la base de datos
 @app.route('/leadborard', methods=['POST'])

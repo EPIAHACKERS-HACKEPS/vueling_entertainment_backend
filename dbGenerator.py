@@ -1,7 +1,10 @@
 import sqlite3
 import hashlib
 import random
+import requests
+import json
 
+apikey_weather = 'c609ebc8980942c48e492252231305'
 database = "database.db"
 
 def dropTable(tablename):
@@ -11,6 +14,25 @@ def dropTable(tablename):
     conn.commit()
     conn.close()
 
+
+
+def get_current_weather(city):
+    try:
+        url = f"http://api.weatherapi.com/v1/current.json?key={apikey_weather}&q={city}&aqi=yes"
+        response = requests.get(url)
+        data = json.loads(response.text)
+        current_weather = {
+            "temperature_c": data["current"]["temp_c"],
+            "condition": data["current"]["condition"]["text"],
+            "icon": data["current"]["condition"]["icon"]
+        }
+    except:
+        current_weather = {
+            "temperature_c": "NOT AVAILABLE",
+            "condition": "NOT AVAILABLE",
+            "icon": "NOT AVAILABLE"
+        }
+    return current_weather
 
 def GenerateDataBases():
     conn = sqlite3.connect(database)
