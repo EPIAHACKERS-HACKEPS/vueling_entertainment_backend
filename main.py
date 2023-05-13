@@ -49,7 +49,7 @@ def execute_response(pompt, engine = ENGINE_MODEL, max_tokens = 1024, temperatur
         engine = engine,
         prompt = pompt,
         max_tokens = max_tokens,
-        temperature = tem    perature
+        temperature = temperature
     )['choices'][0]['text'].strip().replace("\n", "").replace("\t", "")
 
 def converJSON(json_text):
@@ -170,7 +170,7 @@ def insert_leaderboard():
 # Ruta para insertar preguntas en la tabla 'preguntas' de la base de datos
 @app.route('/leadborard', methods=['GET'])
 def get_leaderborard():
-
+    db.getLeaderboard()
     pregunta = request.data['pregunta']
     opciones = request.data['opciones']
     return json.dumps({"status": "OK"})
