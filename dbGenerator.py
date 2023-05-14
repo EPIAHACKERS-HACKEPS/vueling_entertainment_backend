@@ -166,17 +166,23 @@ def getPlaces():
     conn.close()
     return result
 
+
 def updatePlaces(place, username):
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
-    sql = f"SELECT asistentes FROM places where campo = '{place}';"
-    cursor.execute(sql)
-    asistents = cursor.fetchall()[0][0]
-    asistents+=(","+username)
-    sql = "UPDATE places SET asistentes = ? WHERE campo = ?;"
-    cursor.execute(sql, (asistents, place))
-    conn.commit()
-    conn.close()
+    try:
+        sql = f"SELECT asistentes FROM places where campo = '{place}';"
+        cursor.execute(sql)
+        asistents = cursor.fetchall()[0][0]
+        asistents+=(","+username)
+        sql = "UPDATE places SET asistentes = ? WHERE campo = ?;"
+        cursor.execute(sql, (asistents, place))
+        conn.commit()
+    except Exception as e:
+        print("Error updating place:", e)
+    finally:
+        conn.close()
+
 
 def insertPlaces(place, username):
     conn = sqlite3.connect(database)
