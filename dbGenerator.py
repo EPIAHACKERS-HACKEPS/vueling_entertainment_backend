@@ -117,13 +117,14 @@ def insertUserData(user,password):
 def insertLeaderboardData(nickname, seat, pts):
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
-    sql = "INSERT INTO leaderboard_table (nickname, seat, points) VALUES ('?', '?', '?');"
+    sql = "INSERT INTO leaderboard_table (nickname, seat, points) VALUES (?, ?, ?);"
     cursor.execute(sql, (nickname, seat, pts))
     conn.commit()
-    sql = "DELETE FROM leaderboard_table WHERE nickname = '?' AND points < ( SELECT MAX(points) FROM leaderboard_table WHERE nickname = '?');"
-    cursor.execute(sql, (nickname,nickname))
+    sql = "DELETE FROM leaderboard_table WHERE nickname = '"+nickname+"' AND points < ( SELECT MAX(points) FROM leaderboard_table WHERE nickname = '"+nickname+"');"
+    cursor.execute(sql)
     conn.commit()
     conn.close()
+
 
 
 def insertIncidenciasData(seat,type,comments="No Comments"):
