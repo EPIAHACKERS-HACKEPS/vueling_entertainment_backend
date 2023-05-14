@@ -14,7 +14,7 @@ from flask import Flask, request as rr , jsonify, abort
 APIS_INTRANET = ['2d7e2caa-20f8-45db-b318-3b7aedc3c27a','c42a6bd1-5cab-40a1-9977-931f18bf7bc6','659fd5a8-7692-443a-8cfd-08336128ca53']
 # OPENAI DATA
 openai.api_type = "azure"
-openai.api_key = "9cae1236e81e43138b8895ead77acb12"
+openai.api_key = "YOUR_API_KEY_HERE"
 openai.api_base = "https://openaipasionaus.openai.azure.com/"
 openai.api_version = "2022-12-01"
 ENGINE_MODEL = "textDavinci03Model"
