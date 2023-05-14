@@ -182,7 +182,7 @@ def insert_leaderboard():
     points = rr.form.get('points')
     username = rr.form.get('username')
     try:
-        db.insertLeaderboardData(seat,points,username)
+        db.insertLeaderboardData(username,seat,points)
         return json.dumps({"status": "200"})
     except:
         return json.dumps({"status": "400"})

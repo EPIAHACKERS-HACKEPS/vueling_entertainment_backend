@@ -119,21 +119,20 @@ def insertLeaderboardData(nickname, seat, pts):
     cursor = conn.cursor()
 
     # Check if the record already exists
-    sql = "SELECT points FROM leaderboard_table WHERE nickname=? AND seat=?;"
+    sql = "SELECT points FROM leaderboard_table WHERE nickname=? AND seat=? LIMIT 1;"
     cursor.execute(sql, (nickname, seat))
-    result = cursor.fetchone()
+    result = cursor.fetchall()
 
     if result is None:
         # If the record doesn't exist, insert a new one
-        sql = "INSERT INTO leaderboard_table (nickname, seat, points) VALUES (?, ?, ?);"
+        sql = "INSERT INTO leaderboard_table (nickname, seat, points) VALUES ('?', '?', '?');"
         cursor.execute(sql, (nickname, seat, pts))
     else:
         # If the record exists, update it only if the new points are higher
-        current_pts = result[0]
+        current_pts = int(result[0])
         if pts > current_pts:
-            sql = "UPDATE leaderboard_table SET points=? WHERE nickname=? AND seat=?;"
+            sql = "UPDATE leaderboard_table SET points='?' WHERE nickname='?' AND seat='?';"
             cursor.execute(sql, (pts, nickname, seat))
-
     conn.commit()
     conn.close()
 
