@@ -25,7 +25,8 @@ destination_city = ""
 origin_date = ""
 destination_date = ""
 
-
+def getIntranet():
+    return """<!DOCTYPE html><html><head><title>Vueling Entertainment Management Intranet</title><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" href="/public/css/style.css"></head><body><header><img src="/public/logo.svg" alt="Logo"></header><center><form action="/setup" method="post" style="padding: 15pt;width:30vw;border-radius:15pt;background:var(--clr-charcoal);margin-bottom: 12pt;"><label for="city_origen">Origin city:</label><input type="text" name="city_origen" placeholder="Origin city" value="New York" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br><label for="city_destino">Destination city:</label><input type="text" name="city_destino" placeholder="Destination city" value="Los Angeles" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br><label for="fecha_origen">Departure date and time:</label><input type="datetime-local" name="fecha_salida" placeholder="Departure date and time" value="2023-06-01T08:00" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br><label for="fecha_llegada">Arrival date and time:</label><input type="datetime-local" name="fecha_llegada" placeholder="Arrival date and time" value="2023-06-01T12:00" min="2023-06-01T08:00" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br><input type="submit"/></form></center><footer><p>&copy; 2023 Vueling Entretainment Bu <a href="https://github.com/EPIAHACKERS-HACKEPS"/>EpiaHackers</p>. All rights reserved.</p></footer><script src="/public/js/script.js"></script></body></html>"""
 # Define the decorator
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
@@ -134,145 +135,8 @@ def index():
         response.status_code = 401
         abort(403)
         return response
-    else:
-        html="""
-        <!DOCTYPE html>
-<html>
-<head>
-	<title>Flight Reservation</title>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<style>
-		:root {
-			--clr-charcoal: #333333;
-			--clr-light-gray: #4D4D4D;
-			--clr-off-white: #F3F3F3;
-			--clr-white: #FFFFFF;
-			--clr-yellow: #FFCC00;
-			--ff-primary: 'Nunito', sans-serif;
-		}
-    	body{
-		margin: 0;
-		padding: 0;
-		font-family: var(--ff-primary);
-		background-color: var(--clr-light-gray);
-		color: var(--clr-charcoal);
-	}
-
-	header{
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		height: 80px;
-		background-color: var(--clr-charcoal);
-	}
-
-	header img{
-		height: 70px;
-	}
-
-	form{
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		margin-top: 20px;
-		padding: 20pt;
-		width: 30vw;
-		border-radius: 15pt;
-		background: var(--clr-charcoal);
-	}
-
-	label{
-		font-size: 18px;
-		margin-bottom: 10px;
-		color: var(--clr-yellow);
-		font-weight: bold;
-	}
-
-	input[type=datetime-local], input[type=text]{
-		padding: 10px;
-		border-radius: 5px;
-		border: none;
-		background-color: #f5f5f5;
-		color: var(--clr-charcoal);
-		font-size: 16px;
-		margin-bottom: 20px;
-		width: 250px;
-		box-shadow: 0 0 5px 0 rgba(0,0,0,.2);
-	}
-
-	input[type=submit]{
-		padding: 10px 20px;
-		border-radius: 5px;
-		border: none;
-		background-color: var(--clr-yellow);
-		color: #fff;
-		font-size: 18px;
-		cursor: pointer;
-		transition: background-color .3s ease-in-out;
-	}
-
-	input[type=submit]:hover{
-		background-color: #148f77;
-	}
-
-	input[type=text], input[type=datetime]{
-		color: var(--clr-off-white) !important;
-	}
-
-	input[type=text]:hover, input[type=datetime]:hover{
-		color: var(--clr-yellow) !important;
-	}
-
-	footer{
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		height: 80px;
-		background-color: var(--clr-charcoal);
-		color: var(--clr-off-white);
-	}
-
-	footer p{
-		margin: 0;
-		font-size: 16px;
-	}
-
-</style>
-
-  </head>
-<body>
-	<header>
-		<img src="./public/logo.svg" alt="Logo">
-	</header>
-  <center><form action="/setup" method="post" style="padding:20pt;width:30vw;border-radius:15pt;background:var(--clr-charcoal);">
-            <label for="city_origen">Origin city:</label>
-            <input type="text" name="city_origen" placeholder="Origin city" value="New York" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
-            <label for="city_destino">Destination city:</label>
-            <input type="text" name="city_destino" placeholder="Destination city" value="Los Angeles" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
-            <label for="fecha_origen">Departure date and time:</label>
-            <input type="datetime-local" name="fecha_salida" placeholder="Departure date and time" value="2023-06-01T08:00" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
-            <label for="fecha_llegada">Arrival date and time:</label>
-            <input type="datetime-local" name="fecha_llegada" placeholder="Arrival date and time" value="2023-06-01T12:00" min="2023-06-01T08:00" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
-            <input type="submit"/>
-        </form></center>
-  <script>
-    const salidaInput = document.querySelector('input[name="fecha_salida"]');
-    const llegadaInput = document.querySelector('input[name="fecha_llegada"]');
-
-    salidaInput.addEventListener('input', () => {
-        const salidaValue = new Date(salidaInput.value);
-        const llegadaMinValue = new Date(salidaValue.getTime() + 60 * 60 * 1000); // Agregar 1 hora
-
-        const llegadaMin = llegadaMinValue.toISOString().slice(0, 16);
-        llegadaInput.min = llegadaMin;
-    });
-    </script>
-  </body>
-</html>
-        """
-    return html
+    else: 
+        return getIntranet()
 
 
 
@@ -327,7 +191,16 @@ def insert_leaderboard():
 # Ruta para insertar preguntas en la tabla 'preguntas' de la base de datos
 @app.route('/leadborard', methods=['GET'])
 def get_leaderborard():
-    return json.dumps(db.getLeaderboard())
+    results = db.getLeaderboard()
+    # Creamos un diccionario con las claves correspondientes
+    keys = ["id", "nickname", "seat", "points"]
+    # Convertimos cada lista en un diccionario
+    result_dicts = []
+    for r in results:
+        result_dict = {keys[i]: r[i] for i in range(len(keys))}
+        result_dicts.append(result_dict)
+    # Convertimos la lista de diccionarios en una lista de objetos JSON
+    return json.dumps(result_dicts)
 
 # Ruta para obtener preguntas aleatorias de la tabla 'preguntas' de la base de datos
 @app.route('/questions', methods=['GET'])
@@ -351,11 +224,21 @@ def getPlaces():
 # Ruta para insertar preguntas en la tabla 'preguntas' de la base de datos
 @app.route('/places', methods=['POST'])
 def postPlaces():
-    pass
     place = rr.form.get('place')
     username = rr.form.get('username')
     try:
          db.updatePlaces(place,username)
+         return json.dumps({"status": "200"})
+    except:
+         return json.dumps({"status": "400"})
+
+
+@app.route('/genPlace', methods=['POST'])
+def genPlace():
+    place = rr.form.get('place')
+    username = rr.form.get('username')
+    try:
+         db.insertPlaces(place,username)
          return json.dumps({"status": "200"})
     except:
          return json.dumps({"status": "400"})

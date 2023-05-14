@@ -114,13 +114,29 @@ def insertUserData(user,password):
     conn.commit()
     conn.close()
 
-def insertLeaderboardData(nickname,seat,pts):
+def insertLeaderboardData(nickname, seat, pts):
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
-    sql = "INSERT INTO leaderboard_table (nickname, seat, points) VALUES (?, ?, ?);"
-    cursor.execute(sql, (nickname, seat, pts))
+
+    # Check if the record already exists
+    sql = "SELECT points FROM leaderboard_table WHERE nickname=? AND seat=?;"
+    cursor.execute(sql, (nickname, seat))
+    result = cursor.fetchone()
+
+    if result is None:
+        # If the record doesn't exist, insert a new one
+        sql = "INSERT INTO leaderboard_table (nickname, seat, points) VALUES (?, ?, ?);"
+        cursor.execute(sql, (nickname, seat, pts))
+    else:
+        # If the record exists, update it only if the new points are higher
+        current_pts = result[0]
+        if pts > current_pts:
+            sql = "UPDATE leaderboard_table SET points=? WHERE nickname=? AND seat=?;"
+            cursor.execute(sql, (pts, nickname, seat))
+
     conn.commit()
     conn.close()
+
 
 def insertIncidenciasData(seat,type,comments="No Comments"):
     conn = sqlite3.connect(database)
@@ -149,6 +165,9 @@ def getLeaderboard():
     conn.close()
     return result
 
+
+
+
 def getPlaces():
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
@@ -167,6 +186,14 @@ def updatePlaces(place, username):
     asistents+=(","+username)
     sql = "UPDATE places SET asistentes = ? WHERE campo = ?;"
     cursor.execute(sql, (asistents, place))
+    conn.commit()
+    conn.close()
+
+def insertPlaces(place, username):
+    conn = sqlite3.connect(database)
+    cursor = conn.cursor()
+    sql = "INSERT INTO places (campo, username, asistentes)VALUES ('?', '?', '');"
+    cursor.execute(sql,(place,username))
     conn.commit()
     conn.close()
 
