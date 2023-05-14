@@ -51,7 +51,7 @@ def GenerateDataBases():
     db_airport_create = "CREATE TABLE IF NOT EXISTS airports (code TEXT PRIMARY KEY, lat TEXT, lon TEXT, name TEXT, city TEXT, state TEXT, country TEXT, woeid TEXT, tz TEXT, phone TEXT, type TEXT, email TEXT, url TEXT, runway_length TEXT, elev TEXT, icao TEXT, direct_flights TEXT, carriers TEXT);"
     db_kahoot_create = "CREATE TABLE IF NOT EXISTS questions (id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT NOT NULL, option_a TEXT NOT NULL, option_b TEXT NOT NULL, option_c TEXT NOT NULL, option_d TEXT NOT NULL, answer TEXT NOT NULL);"
     db_users_create = "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, user TEXT NOT NULL, password TEXT NOT NULL, apikey TEXT NOT NULL);"
-    db_leaderboard = "CREATE TABLE IF NOT EXISTS leaderboard_table (id INTEGER PRIMARY KEY, username TEXT, seat INTEGER, points INTEGER);"
+    db_leaderboard = "CREATE TABLE IF NOT EXISTS leaderboard_table (id INTEGER PRIMARY KEY, nickname TEXT, seat INTEGER, points INTEGER, FOREIGN KEY (seat) REFERENCES passengers (seat));"
     db_incidents = "CREATE TABLE IF NOT EXISTS incidents (id INTEGER PRIMARY KEY, seat TEXT NOT NULL, type TEXT NOT NULL, comments TEXT, active INTEGER DEFAULT 1, timestamp_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP, timestamp_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (seat) REFERENCES passengers (seat));"
     db_passengers = "CREATE TABLE IF NOT EXISTS passengers (seat TEXT PRIMARY KEY, name TEXT NOT NULL, surnames TEXT NOT NULL, id_card TEXT NOT NULL, email TEXT NOT NULL);"
     db_places = "CREATE TABLE IF NOT EXISTS places (id INTEGER PRIMARY KEY,campo TEXT,username TEXT,asistentes TEXT);"
@@ -114,18 +114,13 @@ def insertUserData(user,password):
     conn.commit()
     conn.close()
 
-def insertLeaderboardData(username, seat, pts):
+def insertLeaderboardData(nickname, seat, pts):
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
-    sql = "INSERT INTO leaderboard_table (username, seat, points) VALUES (?, ?, ?);"
-    cursor.execute(sql, (username, seat, pts))
+    sql = "INSERT INTO leaderboard_table (nickname, seat, points) VALUES (?, ?, ?);"
+    cursor.execute(sql, (nickname, seat, pts))
     conn.commit()
-    #sql = "DELETE FROM leaderboard_table WHERE username = '"+username+"' AND points < ( SELECT MAX(points) FROM leaderboard_table WHERE username = '"+username+"');"
-    sql = "DELETE FROM leaderboard_table WHERE username = '"+username+"' AND points < (SELECT MAX(points) FROM leaderboard_table WHERE username = '"+username+"');"
-    cursor.execute(sql)
-    conn.commit()
-
-    sql = "DELETE FROM leaderboard_table WHERE username = '"+username+"' AND points < (SELECT MAX(points) FROM leaderboard_table WHERE username = '"+username+"') LIMIT 1;"
+    sql = "DELETE FROM leaderboard_table WHERE nickname = '"+nickname+"' AND points < ( SELECT MAX(points) FROM leaderboard_table WHERE nickname = '"+nickname+"');"
     cursor.execute(sql)
     conn.commit()
     conn.close()
