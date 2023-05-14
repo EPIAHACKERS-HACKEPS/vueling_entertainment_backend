@@ -38,12 +38,15 @@ def GenerateDataBases():
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
 
+    db_users_drop = "DROP TABLE IF EXISTS users;"
+    db_places_drop = "DROP TABLE IF EXISTS places;"
     db_airport_drop = "DROP TABLE IF EXISTS airports;"
     db_kahoot_drop = "DROP TABLE IF EXISTS questions;"
-    db_users_drop = "DROP TABLE IF EXISTS users;"
-    db_leaderboard_drop = "DROP TABLE IF EXISTS leaderboard_table;"
     db_incidences_drop = "DROP TABLE IF EXISTS incidents;"
     db_passengers_drop = "DROP TABLE IF EXISTS passengers;"
+    db_leaderboard_drop = "DROP TABLE IF EXISTS leaderboard_table;"
+    db_places_passagers_drop = "DROP TABLE IF EXISTS places_passagers;"
+
 
     db_airport_create = "CREATE TABLE IF NOT EXISTS airports (code TEXT PRIMARY KEY, lat TEXT, lon TEXT, name TEXT, city TEXT, state TEXT, country TEXT, woeid TEXT, tz TEXT, phone TEXT, type TEXT, email TEXT, url TEXT, runway_length TEXT, elev TEXT, icao TEXT, direct_flights TEXT, carriers TEXT);"
     db_kahoot_create = "CREATE TABLE IF NOT EXISTS questions (id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT NOT NULL, option_a TEXT NOT NULL, option_b TEXT NOT NULL, option_c TEXT NOT NULL, option_d TEXT NOT NULL, answer TEXT NOT NULL);"
@@ -51,13 +54,17 @@ def GenerateDataBases():
     db_leaderboard = "CREATE TABLE IF NOT EXISTS leaderboard_table (id INTEGER PRIMARY KEY, nickname TEXT, seat INTEGER, points INTEGER, FOREIGN KEY (seat) REFERENCES passengers (seat));"
     db_incidents = "CREATE TABLE IF NOT EXISTS incidents (id INTEGER PRIMARY KEY, seat TEXT NOT NULL, type TEXT NOT NULL, comments TEXT, active INTEGER DEFAULT 1, timestamp_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP, timestamp_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (seat) REFERENCES passengers (seat));"
     db_passengers = "CREATE TABLE IF NOT EXISTS passengers (seat TEXT PRIMARY KEY, name TEXT NOT NULL, surnames TEXT NOT NULL, id_card TEXT NOT NULL, email TEXT NOT NULL);"
+    db_places = "CREATE TABLE IF NOT EXISTS places (id INTEGER PRIMARY KEY,campo TEXT,username TEXT,asistentes TEXT);"
+
 
     cursor.execute(db_airport_drop)
     cursor.execute(db_kahoot_drop)
     cursor.execute(db_users_drop)
     cursor.execute(db_leaderboard_drop)
+    cursor.execute(db_places_drop)
     cursor.execute(db_incidences_drop)
     cursor.execute(db_passengers_drop)
+    cursor.execute(db_places_passagers_drop)
 
     cursor.execute(db_airport_create)
     cursor.execute(db_kahoot_create)
@@ -65,7 +72,8 @@ def GenerateDataBases():
     cursor.execute(db_leaderboard)
     cursor.execute(db_incidents)
     cursor.execute(db_passengers)
-
+    cursor.execute(db_places)
+    
     conn.commit()
     conn.close()
 
@@ -97,8 +105,8 @@ def insertPasajerosData(seat,name,surnames,id_card,email):
 
 
 def insertUserData(user,password):
-    password = hashlib.sha256(b''+password+'').hexdigest()
-    apikey = hashlib.sha256(b''+password+'').hexdigest()
+    password = hashlib.sha256(password.encode()).hexdigest()
+    apikey = hashlib.sha256(password.encode()).hexdigest()
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
     sql = f"INSERT INTO users (user, password, apikey) VALUES ('{user}', '{password}', '{apikey}');"
@@ -141,6 +149,26 @@ def getLeaderboard():
     conn.close()
     return result
 
+def getPlaces():
+    conn = sqlite3.connect(database)
+    cursor = conn.cursor()
+    sql = "SELECT * FROM places"
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+def updatePlaces(place, username):
+    conn = sqlite3.connect(database)
+    cursor = conn.cursor()
+    sql = f"SELECT asistentes FROM places where campo = '{place}';"
+    cursor.execute(sql)
+    asistents = cursor.fetchall()[0][0]
+    asistents+=(","+username)
+    sql = "UPDATE places SET asistentes = ? WHERE campo = ?;"
+    cursor.execute(sql, (asistents, place))
+    conn.commit()
+    conn.close()
 
 def updateAirportsData(code, name):
     conn = sqlite3.connect(database)

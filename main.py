@@ -5,13 +5,13 @@ import json
 import time
 import openai
 import shutil
+import sqlite3
 import requests
 import threading
-from flask import Flask, request as rr
-import sqlite3
-# files
 import dbGenerator as db
+from flask import Flask, request as rr , jsonify, abort
 
+APIS_INTRANET = ['2d7e2caa-20f8-45db-b318-3b7aedc3c27a','c42a6bd1-5cab-40a1-9977-931f18bf7bc6','659fd5a8-7692-443a-8cfd-08336128ca53']
 # OPENAI DATA
 openai.api_type = "azure"
 openai.api_key = "9cae1236e81e43138b8895ead77acb12"
@@ -109,98 +109,115 @@ def setupInfo(city="Barcelona"):
 
 
 app = Flask(__name__,static_folder='public')
+app.config['API_KEYS'] = APIS_INTRANET
 
+
+    
 # Aplica el decorador a todas las respuestas de la aplicación
 @app.after_request
 def after_request(response):
     return add_cors_headers(response)
 
+
+# @app.before_request
+# def protect_url():
+#     if rr.path == '/':
+#         return check_api_key()
+    
+
 # Establece la ruta de la raíz de la API
 @app.route('/')
 def index():
-    html="""
-    <style>
-    :root {
-        --clr-charcoal: #333333;
-        --clr-light-gray: #4D4D4D;
-        --clr-off-white: #F3F3F3;
-        --clr-white: #FFFFFF;
-        --clr-yellow: #FFCC00;
-        --ff-primary: 'Nunito', sans-serif;
+    api_key = rr.args.get('api_key')
+    if api_key not in app.config['API_KEYS']:
+        response = jsonify({'error': 'Clave API inválida'})
+        response.status_code = 401
+        abort(403)
+        return response
+    else:
+        html="""
+        <style>
+        :root {
+            --clr-charcoal: #333333;
+            --clr-light-gray: #4D4D4D;
+            --clr-off-white: #F3F3F3;
+            --clr-white: #FFFFFF;
+            --clr-yellow: #FFCC00;
+            --ff-primary: 'Nunito', sans-serif;
+        }
+        form{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        margin-top:20px
     }
-    form{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    margin-top:20px
-}
-label{
-    font-size:18px;
-    margin-bottom:10px;
-    color:var(--clr-yellow);
-    font-weight:bold;
-    font-family:var(--ff-primary);
-}
-input[type=datetime-local],input[type=text]{
-    padding:10px;
-    border-radius:5px;
-    border:none;
-    background-color:#f5f5f5;
-    color:var(--clr-charcoal);
-    font-size:16px;
-    margin-bottom:20px;
-    width:250px;
-    box-shadow:0 0 5px 0 rgba(0,0,0,.2)
-}
-input[type=submit]{
-    padding:10px 20px;
-    border-radius:5px;
-    border:none;
-    background-color:var(--clr-yellow);
-    color:#fff;
-    font-size:18px;
-    cursor:pointer;
-    transition:background-color .3s ease-in-out
-}
-input[type=submit]:hover{
-    background-color:#148f77
-}
-input[type=text],input[type=datetime]{
-    color:var(--clr-off-white) !important;
-}
-input[type=text]:hover,input[type=datetime]:hover{
-    color:var(--clr-yellow) !important;
-}
+    label{
+        font-size:18px;
+        margin-bottom:10px;
+        color:var(--clr-yellow);
+        font-weight:bold;
+        font-family:var(--ff-primary);
+    }
+    input[type=datetime-local],input[type=text]{
+        padding:10px;
+        border-radius:5px;
+        border:none;
+        background-color:#f5f5f5;
+        color:var(--clr-charcoal);
+        font-size:16px;
+        margin-bottom:20px;
+        width:250px;
+        box-shadow:0 0 5px 0 rgba(0,0,0,.2)
+    }
+    input[type=submit]{
+        padding:10px 20px;
+        border-radius:5px;
+        border:none;
+        background-color:var(--clr-yellow);
+        color:#fff;
+        font-size:18px;
+        cursor:pointer;
+        transition:background-color .3s ease-in-out
+    }
+    input[type=submit]:hover{
+        background-color:#148f77
+    }
+    input[type=text],input[type=datetime]{
+        color:var(--clr-off-white) !important;
+    }
+    input[type=text]:hover,input[type=datetime]:hover{
+        color:var(--clr-yellow) !important;
+    }
 
-</style>
+    </style>
 
-    <center><form action="/setup" method="post" style="padding:20pt;width:30vw;border-radius:15pt;background:var(--clr-charcoal);">
-        <label for="city_origen">Origin city:</label>
-        <input type="text" name="city_origen" placeholder="Origin city" value="New York" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
-        <label for="city_destino">Destination city:</label>
-        <input type="text" name="city_destino" placeholder="Destination city" value="Los Angeles" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
-        <label for="fecha_origen">Departure date and time:</label>
-        <input type="datetime-local" name="fecha_salida" placeholder="Departure date and time" value="2023-06-01T08:00" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
-        <label for="fecha_llegada">Arrival date and time:</label>
-        <input type="datetime-local" name="fecha_llegada" placeholder="Arrival date and time" value="2023-06-01T12:00" min="2023-06-01T08:00" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
-        <input type="submit"/>
-    </form></center>
-<script>
-  const salidaInput = document.querySelector('input[name="fecha_salida"]');
-  const llegadaInput = document.querySelector('input[name="fecha_llegada"]');
+        <center><form action="/setup" method="post" style="padding:20pt;width:30vw;border-radius:15pt;background:var(--clr-charcoal);">
+            <label for="city_origen">Origin city:</label>
+            <input type="text" name="city_origen" placeholder="Origin city" value="New York" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
+            <label for="city_destino">Destination city:</label>
+            <input type="text" name="city_destino" placeholder="Destination city" value="Los Angeles" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
+            <label for="fecha_origen">Departure date and time:</label>
+            <input type="datetime-local" name="fecha_salida" placeholder="Departure date and time" value="2023-06-01T08:00" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
+            <label for="fecha_llegada">Arrival date and time:</label>
+            <input type="datetime-local" name="fecha_llegada" placeholder="Arrival date and time" value="2023-06-01T12:00" min="2023-06-01T08:00" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
+            <input type="submit"/>
+        </form></center>
+    <script>
+    const salidaInput = document.querySelector('input[name="fecha_salida"]');
+    const llegadaInput = document.querySelector('input[name="fecha_llegada"]');
 
-  salidaInput.addEventListener('input', () => {
-    const salidaValue = new Date(salidaInput.value);
-    const llegadaMinValue = new Date(salidaValue.getTime() + 60 * 60 * 1000); // Agregar 1 hora
+    salidaInput.addEventListener('input', () => {
+        const salidaValue = new Date(salidaInput.value);
+        const llegadaMinValue = new Date(salidaValue.getTime() + 60 * 60 * 1000); // Agregar 1 hora
 
-    const llegadaMin = llegadaMinValue.toISOString().slice(0, 16);
-    llegadaInput.min = llegadaMin;
-  });
-</script>
-
+        const llegadaMin = llegadaMinValue.toISOString().slice(0, 16);
+        llegadaInput.min = llegadaMin;
+    });
+    </script>
     """
-    return 'Welcome to my application API!<br>'+html
+    return html
+
 
 
 @app.route('/setup', methods=['POST'])
@@ -262,14 +279,50 @@ def obtener_preguntas():
     return json.dumps(db.get_random_questions())
 
 
+@app.route('/places', methods=['GET'])
+def getPlaces():
+    results = db.getPlaces()
+    # Creamos un diccionario con las claves correspondientes
+    keys = ["id", "place", "username", "assitants"]
+    # Convertimos cada lista en un diccionario
+    result_dicts = []
+    for r in results:
+        result_dict = {keys[i]: r[i] for i in range(len(keys))}
+        result_dicts.append(result_dict)
+    # Convertimos la lista de diccionarios en una lista de objetos JSON
+    return json.dumps(result_dicts)
+
+# Ruta para insertar preguntas en la tabla 'preguntas' de la base de datos
+@app.route('/places', methods=['POST'])
+def postPlaces():
+    pass
+    username = rr.form.get('place')
+    place = rr.form.get('username')
+    try:
+         db.updatePlaces(place,username)
+         return json.dumps({"status": "200"})
+    except:
+         return json.dumps({"status": "400"})
+
+
+
+
 if __name__ == '__main__':
     ip = '127.0.0.1'
     port = 80
 
     ruta_archivo = os.getcwd()+db.database
-    #print(ruta_archivo)
+    
     if not os.path.exists(ruta_archivo):
+        # Generar Base de Datos
         db.GenerateDataBases()
         print("DATABASE GENERATED as "+db.database)
-    app.run(host=ip, port=port,debug=False)
+        # Generar Usuario Admin con Contraseña: !$Admin1234$!
+        #db.insertUserData('admin','!$Admin1234$!')
+        #print("GENERATED [USERNAME = admin] with [PASSWORD = !$Admin1234$!]")
+        # MOSTRAR LAS API KEYS DE INTRANET
+        print('API KEYS DE INTRANET')
+        print(APIS_INTRANET)
+        
+    app.run(host=ip, port=port,debug=False,)
 
