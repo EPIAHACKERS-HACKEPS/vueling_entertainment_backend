@@ -183,6 +183,13 @@ def updatePlaces(place, username):
     finally:
         conn.close()
 
+def insertAssistant(seat):
+    conn = sqlite3.connect(database)
+    cursor = conn.cursor()
+    sql = "SELECT * FROM incidents WHERE active = 0"
+    cursor.execute(sql)
+    conn.commit()
+    conn.close()
 
 def insertPlaces(place, username):
     conn = sqlite3.connect(database)

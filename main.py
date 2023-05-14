@@ -179,10 +179,10 @@ def generalInfo():
 @app.route('/leadborard', methods=['POST'])
 def insert_leaderboard():
     seat = rr.form.get('seat')
-#    points = rr.form.get('points')
+    #points = rr.form.get('points')
     username = rr.form.get('username')
-    questons = rr.form.get('questons')
-    questions = json.loads(questons)
+    questions = rr.form.get('questions')
+    questions = json.loads(questions)
     points = 0
     for question in questions:
         if question['answer'] == question['correctAnswer']:
@@ -252,6 +252,32 @@ def genPlace():
 
 
 
+@app.route('/assist', methods=['GET'])
+def getAssist():
+    results = db.getPlaces()
+    # Creamos un diccionario con las claves correspondientes
+    keys = ["id", "place", "username", "assitants"]
+    # Convertimos cada lista en un diccionario
+    result_dicts = []
+    for r in results:
+        result_dict = {keys[i]: r[i] for i in range(len(keys))}
+        result_dicts.append(result_dict)
+    # Convertimos la lista de diccionarios en una lista de objetos JSON
+    return json.dumps(result_dicts)
+
+
+# Ruta para insertar preguntas en la tabla 'preguntas' de la base de datos
+@app.route('/assist', methods=['POST'])
+def asist():
+    place = rr.form.get('place')
+    username = rr.form.get('username')
+    try:
+         db.updatePlaces(place,username)
+         return json.dumps({"status": "200"})
+    except:
+         return json.dumps({"status": "400"})
+
+
 
 if __name__ == '__main__':
     ip = '127.0.0.1'
@@ -270,5 +296,5 @@ if __name__ == '__main__':
         print('API KEYS DE INTRANET')
         print(APIS_INTRANET)
         
-    app.run(host=ip, port=port,debug=False,)
+    app.run(host=ip, port=port,debug=False)
 
