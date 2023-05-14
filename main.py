@@ -136,63 +136,117 @@ def index():
         return response
     else:
         html="""
-        <style>
-        :root {
-            --clr-charcoal: #333333;
-            --clr-light-gray: #4D4D4D;
-            --clr-off-white: #F3F3F3;
-            --clr-white: #FFFFFF;
-            --clr-yellow: #FFCC00;
-            --ff-primary: 'Nunito', sans-serif;
-        }
-        form{
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        margin-top:20px
-    }
-    label{
-        font-size:18px;
-        margin-bottom:10px;
-        color:var(--clr-yellow);
-        font-weight:bold;
-        font-family:var(--ff-primary);
-    }
-    input[type=datetime-local],input[type=text]{
-        padding:10px;
-        border-radius:5px;
-        border:none;
-        background-color:#f5f5f5;
-        color:var(--clr-charcoal);
-        font-size:16px;
-        margin-bottom:20px;
-        width:250px;
-        box-shadow:0 0 5px 0 rgba(0,0,0,.2)
-    }
-    input[type=submit]{
-        padding:10px 20px;
-        border-radius:5px;
-        border:none;
-        background-color:var(--clr-yellow);
-        color:#fff;
-        font-size:18px;
-        cursor:pointer;
-        transition:background-color .3s ease-in-out
-    }
-    input[type=submit]:hover{
-        background-color:#148f77
-    }
-    input[type=text],input[type=datetime]{
-        color:var(--clr-off-white) !important;
-    }
-    input[type=text]:hover,input[type=datetime]:hover{
-        color:var(--clr-yellow) !important;
-    }
+        <!DOCTYPE html>
+<html>
+<head>
+	<title>Flight Reservation</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		:root {
+			--clr-charcoal: #333333;
+			--clr-light-gray: #4D4D4D;
+			--clr-off-white: #F3F3F3;
+			--clr-white: #FFFFFF;
+			--clr-yellow: #FFCC00;
+			--ff-primary: 'Nunito', sans-serif;
+		}
+    	body{
+		margin: 0;
+		padding: 0;
+		font-family: var(--ff-primary);
+		background-color: var(--clr-light-gray);
+		color: var(--clr-charcoal);
+	}
 
-    </style>
+	header{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 80px;
+		background-color: var(--clr-charcoal);
+	}
 
-        <center><form action="/setup" method="post" style="padding:20pt;width:30vw;border-radius:15pt;background:var(--clr-charcoal);">
+	header img{
+		height: 70px;
+	}
+
+	form{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		margin-top: 20px;
+		padding: 20pt;
+		width: 30vw;
+		border-radius: 15pt;
+		background: var(--clr-charcoal);
+	}
+
+	label{
+		font-size: 18px;
+		margin-bottom: 10px;
+		color: var(--clr-yellow);
+		font-weight: bold;
+	}
+
+	input[type=datetime-local], input[type=text]{
+		padding: 10px;
+		border-radius: 5px;
+		border: none;
+		background-color: #f5f5f5;
+		color: var(--clr-charcoal);
+		font-size: 16px;
+		margin-bottom: 20px;
+		width: 250px;
+		box-shadow: 0 0 5px 0 rgba(0,0,0,.2);
+	}
+
+	input[type=submit]{
+		padding: 10px 20px;
+		border-radius: 5px;
+		border: none;
+		background-color: var(--clr-yellow);
+		color: #fff;
+		font-size: 18px;
+		cursor: pointer;
+		transition: background-color .3s ease-in-out;
+	}
+
+	input[type=submit]:hover{
+		background-color: #148f77;
+	}
+
+	input[type=text], input[type=datetime]{
+		color: var(--clr-off-white) !important;
+	}
+
+	input[type=text]:hover, input[type=datetime]:hover{
+		color: var(--clr-yellow) !important;
+	}
+
+	footer{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 80px;
+		background-color: var(--clr-charcoal);
+		color: var(--clr-off-white);
+	}
+
+	footer p{
+		margin: 0;
+		font-size: 16px;
+	}
+
+</style>
+
+  </head>
+<body>
+	<header>
+		<img src="./public/logo.svg" alt="Logo">
+	</header>
+  <center><form action="/setup" method="post" style="padding:20pt;width:30vw;border-radius:15pt;background:var(--clr-charcoal);">
             <label for="city_origen">Origin city:</label>
             <input type="text" name="city_origen" placeholder="Origin city" value="New York" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
             <label for="city_destino">Destination city:</label>
@@ -203,7 +257,7 @@ def index():
             <input type="datetime-local" name="fecha_llegada" placeholder="Arrival date and time" value="2023-06-01T12:00" min="2023-06-01T08:00" style="border: 1pt solid var(--clr-yellow);background:var(--clr-charcoal);color:var(--clr-off-white);"/><br>
             <input type="submit"/>
         </form></center>
-    <script>
+  <script>
     const salidaInput = document.querySelector('input[name="fecha_salida"]');
     const llegadaInput = document.querySelector('input[name="fecha_llegada"]');
 
@@ -215,7 +269,9 @@ def index():
         llegadaInput.min = llegadaMin;
     });
     </script>
-    """
+  </body>
+</html>
+        """
     return html
 
 
@@ -296,8 +352,8 @@ def getPlaces():
 @app.route('/places', methods=['POST'])
 def postPlaces():
     pass
-    username = rr.form.get('place')
-    place = rr.form.get('username')
+    place = rr.form.get('place')
+    username = rr.form.get('username')
     try:
          db.updatePlaces(place,username)
          return json.dumps({"status": "200"})
