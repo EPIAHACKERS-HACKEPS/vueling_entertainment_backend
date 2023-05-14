@@ -193,7 +193,7 @@ def insert_leaderboard():
 def get_leaderborard():
     results = db.getLeaderboard()
     # Creamos un diccionario con las claves correspondientes
-    keys = ["id", "nickname", "seat", "points"]
+    keys = ["id", "username", "seat", "points"]
     # Convertimos cada lista en un diccionario
     result_dicts = []
     for r in results:
