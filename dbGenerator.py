@@ -181,10 +181,11 @@ def updatePlaces(place, username):
 def insertPlaces(place, username):
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
-    sql = "INSERT INTO places (campo, username, asistentes)VALUES ('?', '?', '');"
-    cursor.execute(sql,(place,username))
+    sql = "INSERT INTO places (campo, username, asistentes) VALUES (?, ?, '');"
+    cursor.execute(sql, (place, username))
     conn.commit()
     conn.close()
+
 
 def updateAirportsData(code, name):
     conn = sqlite3.connect(database)
