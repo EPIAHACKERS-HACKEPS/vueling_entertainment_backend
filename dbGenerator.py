@@ -52,7 +52,7 @@ def GenerateDataBases():
     db_kahoot_create = "CREATE TABLE IF NOT EXISTS questions (id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT NOT NULL, option_a TEXT NOT NULL, option_b TEXT NOT NULL, option_c TEXT NOT NULL, option_d TEXT NOT NULL, answer TEXT NOT NULL);"
     db_users_create = "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, user TEXT NOT NULL, password TEXT NOT NULL, apikey TEXT NOT NULL);"
     db_leaderboard = "CREATE TABLE IF NOT EXISTS leaderboard_table (id INTEGER PRIMARY KEY, nickname TEXT, seat INTEGER, points INTEGER, FOREIGN KEY (seat) REFERENCES passengers (seat));"
-    db_incidents = "CREATE TABLE IF NOT EXISTS incidents (id INTEGER PRIMARY KEY, seat TEXT NOT NULL, type TEXT NOT NULL, comments TEXT, active INTEGER DEFAULT 1, timestamp_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP, timestamp_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (seat) REFERENCES passengers (seat));"
+    db_incidents = "CREATE TABLE IF NOT EXISTS incidents (id INTEGER PRIMARY KEY, seat TEXT NOT NULL, active INTEGER DEFAULT 1, timestamp_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP, timestamp_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"
     db_passengers = "CREATE TABLE IF NOT EXISTS passengers (seat TEXT PRIMARY KEY, name TEXT NOT NULL, surnames TEXT NOT NULL, id_card TEXT NOT NULL, email TEXT NOT NULL);"
     db_places = "CREATE TABLE IF NOT EXISTS places (id INTEGER PRIMARY KEY,campo TEXT,username TEXT,asistentes TEXT);"
 
@@ -156,6 +156,14 @@ def getLeaderboard():
 
 
 
+def getIncidents():
+    conn = sqlite3.connect(database)
+    cursor = conn.cursor()
+    sql = "SELECT * FROM incidents WHERE active = 1"
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    conn.close()
+    return result
 
 def getPlaces():
     conn = sqlite3.connect(database)
@@ -183,11 +191,20 @@ def updatePlaces(place, username):
     finally:
         conn.close()
 
+def setCompletedAssistant(seat):
+    conn = sqlite3.connect(database)
+    cursor = conn.cursor()
+    sql = "UPDATE incidents SET active = 0 WHERE active = 1 AND seat = ?;"
+    cursor.execute(sql,(seat))
+    conn.commit()
+    conn.close()
+
+
 def insertAssistant(seat):
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
-    sql = "SELECT * FROM incidents WHERE active = 0"
-    cursor.execute(sql)
+    sql = "INSERT INTO incidents (seat, active) VALUES (?, 1)";
+    cursor.execute(sql, (seat))
     conn.commit()
     conn.close()
 
@@ -224,11 +241,11 @@ def updateLeaderboardData(id, points):
     conn.commit()
     conn.close()
 
-def updateIncidencesData(id, comments):
+def updateIncidencesData(id, active):
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
-    sql = "UPDATE incidents SET comments = ? WHERE id = ?;"
-    cursor.execute(sql, (comments, id))
+    sql = "UPDATE incidents SET active = ? WHERE id = ?;"
+    cursor.execute(sql, (active, id))
     conn.commit()
     conn.close()
 
