@@ -8,16 +8,20 @@ import shutil
 import sqlite3
 import requests
 import threading
+import credentials as cred
 import dbGenerator as db
 from flask import Flask, request as rr , jsonify, abort
 
 APIS_INTRANET = ['2d7e2caa-20f8-45db-b318-3b7aedc3c27a','c42a6bd1-5cab-40a1-9977-931f18bf7bc6','659fd5a8-7692-443a-8cfd-08336128ca53']
+
+
 # OPENAI DATA
-openai.api_type = "azure"
-openai.api_key = "YOUR_API_KEY_HERE"
-openai.api_base = "https://openaipasionaus.openai.azure.com/"
-openai.api_version = "2022-12-01"
-ENGINE_MODEL = "textDavinci03Model"
+#openai.api_type = "azure"
+openai.api_key = cred.api
+#openai.api_base = "https://*.openai.azure.com/"
+#openai.api_version = "2022-12-01"
+ENGINE_MODEL = "text-davinci-003"
+#ENGINE_MODEL = "text-ada-001"
 
 # FLIGHT VARIABLES
 origin_city = ""
@@ -39,12 +43,12 @@ def OpenAiReConfig(API_TYPE_NEW,API_KEY_NEW,API_BASE_NEW,API_VERSION_NEW,ENGINE_
     global ENGINE_MODEL
     openai.API_TYPE = API_TYPE_NEW
     openai.api_key = API_KEY_NEW
-    openai.API_BASE = API_BASE_NEW
-    openai.API_VERSION = API_VERSION_NEW
+    #openai.API_BASE = API_BASE_NEW
+    #openai.API_VERSION = API_VERSION_NEW
     ENGINE_MODEL = ENGINE_MODEL_NEW
 
 
-def execute_response(pompt, engine = ENGINE_MODEL, max_tokens = 1024, temperature = 0.7):
+def execute_response(pompt,engine=ENGINE_MODEL,max_tokens=1024, temperature=0.7):
     return openai.Completion.create(
         engine = engine,
         prompt = pompt,
@@ -65,7 +69,7 @@ def converJSON(json_text):
             return {}
     return {}
 
-def create_kahoot_prompt(flight_destination,topic, n = 10):
+def create_kahoot_prompt(flight_destination,topic,n=10):
     # INGLÉS
     prompt = f"Return me a valid JSON containing a list called 'quiz' of {n} objects with the following format:\n- 'question': A question about the city of {flight_destination} and subject {topic}: A valid or invalid answer about the question 'b': Another valid or invalid answer on the question 'c': Another valid or invalid answer on the question 'd': Another valid or invalid answer on the question 'answer': The letter (a, b, c, d) that contains the correct answer to 'question'. Only one can be correct, the others will be false."
     # ESPAÑOL

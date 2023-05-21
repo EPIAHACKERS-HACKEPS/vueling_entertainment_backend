@@ -3,3 +3,4 @@ database.db
 /cache
 /__pycache__
 database.db-journal
+credentials.py
